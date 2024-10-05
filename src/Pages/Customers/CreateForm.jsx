@@ -10,6 +10,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { api } from "@/utils/axios"
+import { LoaderIcon } from "lucide-react"
 import { useState } from "react"
 import { useMutation, useQueryClient } from "react-query"
 import { toast } from "react-toastify"
@@ -19,7 +20,7 @@ const CreateForm = () => {
   const queryclient=useQueryClient()
   
 
-  const { mutate } = useMutation((postbody) => {
+  const { mutate,isLoading } = useMutation((postbody) => {
     return api.post('/customer/create', postbody)
   }, {
     onSuccess: () => {
@@ -109,8 +110,11 @@ const CreateForm = () => {
           />
         </div>
       </div>
-      <DialogFooter>
-          <Button onClick={handleSubmit}>Create Customer</Button>
+        <DialogFooter>
+        {isLoading? <Button className="w-full cursor-not-allowed opacity-50 ">
+       Loading... <LoaderIcon/>
+      </Button>  :<Button onClick={handleSubmit} className="w-full">Create Customer</Button>}
+          
       </DialogFooter>
     </DialogContent>
   </Dialog>

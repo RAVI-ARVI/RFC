@@ -42,11 +42,19 @@ import { useNavigate } from "react-router-dom"
 
 
 export function CustomersTable() {
+  const navigate = useNavigate()
 
     const { data, isLoading } = useQuery('get-customers', () => {
         return api.get('/customer/get-all').then((res)=>res.data.data)
+    }, {
+      onError: (err) => {
+        console.log(err, "this is errors")
+        if (err.status = 401) {
+          navigate('/login')
+        }
+      }
     })
-  const navigate = useNavigate()
+
   
    const columns = [
     {

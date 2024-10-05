@@ -11,11 +11,13 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { api } from "@/utils/axios"
+import { LoaderIcon } from "lucide-react"
 import { useState } from "react"
 import { useMutation, useQueryClient } from "react-query"
 import { useParams } from "react-router-dom"
 import { toast } from "react-toastify"
 
+// eslint-disable-next-line react/prop-types
 const AddTransactionForm = ({ loanData }) => {
     const {id}=useParams()
    
@@ -23,7 +25,7 @@ const AddTransactionForm = ({ loanData }) => {
   const queryclient=useQueryClient()
   
 
-  const { mutate } = useMutation((postbody) => {
+  const { mutate,isLoading } = useMutation((postbody) => {
     return api.post(`/customer/${id}/transaction`, postbody)
   }, {
     onSuccess: () => {
@@ -177,8 +179,11 @@ const AddTransactionForm = ({ loanData }) => {
           </div>
          
       </div>
-      <DialogFooter>
-          <Button onClick={handleSubmit}>Create Customer</Button>
+        <DialogFooter>
+          {isLoading? <Button className="w-full cursor-not-allowed opacity-50 ">
+       Loading... <LoaderIcon/>
+      </Button>:<Button onClick={handleSubmit} className="w-full">Create Customer</Button>}
+          
       </DialogFooter>
     </DialogContent>
   </Dialog>

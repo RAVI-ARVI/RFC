@@ -5,6 +5,7 @@ import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
 
 import { api, setAuthToken } from "@/utils/axios";
+import { LoaderIcon } from "lucide-react";
 import { useMutation } from "react-query";
 import { Link, useNavigate } from "react-router-dom";
 import SpecialLoadingButton from "./sub-components/SpecialLoadingButton";
@@ -48,9 +49,9 @@ const Login = () => {
     //   toast.error(error);
    
     // }
-    if (Cookies.get("userlogin")) {
-      navigateTo("/");
-    }
+    // if (Cookies.get("userlogin")) {
+    //   navigateTo("/");
+    // }
     }, []);
  
 
@@ -95,12 +96,21 @@ const Login = () => {
             {loading ? (
               <SpecialLoadingButton content={"Loggin In"} />
             ) : (
-              <Button
+                <>{isLoading?    <Button
+                
+                    className="w-full cursor-not-allowed opacity-50 "
+                    
+                >
+                 Loading... <LoaderIcon/>
+                </Button> :
+                  <Button
                 onClick={() => handleLogin(email, password)}
-                className="w-full"
+                  className="w-full "
+                  
               >
-                Login
-              </Button>
+               Login
+              </Button>}</>
+          
             )}
           </div>
         </div>
