@@ -1,28 +1,25 @@
-"use client"
+"use client";
 
-import {
-  CaretSortIcon,
-  ChevronDownIcon
-} from "@radix-ui/react-icons"
+import { CaretSortIcon, ChevronDownIcon } from "@radix-ui/react-icons";
 import {
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  useReactTable
-} from "@tanstack/react-table"
-import * as React from "react"
+  useReactTable,
+} from "@tanstack/react-table";
+import * as React from "react";
 
-import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
-  DropdownMenuTrigger
-} from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -30,33 +27,31 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { api } from "@/utils/axios"
-import { ViewIcon } from "lucide-react"
-import { useQuery } from "react-query"
-import { useNavigate } from "react-router-dom"
-
-
-
-
-
+} from "@/components/ui/table";
+import { api } from "@/utils/axios";
+import { ViewIcon } from "lucide-react";
+import { useQuery } from "react-query";
+import { useNavigate } from "react-router-dom";
 
 export function CustomersTable() {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
-    const { data, isLoading } = useQuery('get-customers', () => {
-        return api.get('/customer/get-all').then((res)=>res.data.data)
-    }, {
+  const { data, isLoading } = useQuery(
+    "get-customers",
+    () => {
+      return api.get("/customer/get-all").then((res) => res.data.data);
+    },
+    {
       onError: (err) => {
-        console.log(err, "this is errors")
-        if (err.status = 401) {
-          navigate('/login')
+        console.log(err, "this is errors");
+        if ((err.status = 401)) {
+          navigate("/login");
         }
-      }
-    })
+      },
+    }
+  );
 
-  
-   const columns = [
+  const columns = [
     {
       id: "select",
       header: ({ table }) => (
@@ -97,40 +92,47 @@ export function CustomersTable() {
             Phone
             <CaretSortIcon className="ml-2 h-4 w-4" />
           </Button>
-        )
+        );
       },
-      cell: ({ row }) => <div className="lowercase">{row.getValue("phone")}</div>,
+      cell: ({ row }) => (
+        <div className="lowercase">{row.getValue("phone")}</div>
+      ),
     },
     {
       accessorKey: "address",
       header: () => <div className="text-right">Address</div>,
       cell: ({ row }) => {
-      //   const amount = parseFloat(row.getValue("amount"))
-  
-      //   // Format the amount as a dollar amount
-      //   const formatted = new Intl.NumberFormat("en-US", {
-      //     style: "currency",
-      //     currency: "USD",
-      //   }).format(amount)
-  
-        return <div className="text-right font-medium">{row.getValue("address")}</div>
+        //   const amount = parseFloat(row.getValue("amount"))
+
+        //   // Format the amount as a dollar amount
+        //   const formatted = new Intl.NumberFormat("en-US", {
+        //     style: "currency",
+        //     currency: "USD",
+        //   }).format(amount)
+
+        return (
+          <div className="text-right font-medium">
+            {row.getValue("address")}
+          </div>
+        );
       },
     },
     {
       id: "actions",
-      accessorKey: "phone",
-      
+      accessorKey: "Action",
+
       cell: ({ row }) => {
-        
         return (
           <>
-            <ViewIcon onClick={() => {
-              navigate(`user/${row.original?._id}`)
-              console.log(row.original?._id,"this is id")
-          }} />
+            <ViewIcon
+              onClick={() => {
+                navigate(`user/${row.original?._id}`);
+                console.log(row.original?._id, "this is id");
+              }}
+            />
           </>
-        )
-  
+        );
+
         // return (
         //   <DropdownMenu>
         //     <DropdownMenuTrigger asChild>
@@ -154,16 +156,12 @@ export function CustomersTable() {
         // )
       },
     },
-  ]
-  const [sorting, setSorting] = React.useState([])
-  const [columnFilters, setColumnFilters] = React.useState(
-    []
-  )
+  ];
+  const [sorting, setSorting] = React.useState([]);
+  const [columnFilters, setColumnFilters] = React.useState([]);
 
-  const [columnVisibility, setColumnVisibility] =
-    React.useState({})
-    const [rowSelection, setRowSelection] = React.useState({})
-    
+  const [columnVisibility, setColumnVisibility] = React.useState({});
+  const [rowSelection, setRowSelection] = React.useState({});
 
   const table = useReactTable({
     data,
@@ -182,17 +180,17 @@ export function CustomersTable() {
       columnVisibility,
       rowSelection,
     },
-  })
+  });
   if (isLoading) {
-    return <h1>loading...</h1>
-}
+    return <h1>loading...</h1>;
+  }
 
   return (
     <div className="w-full">
       <div className="flex items-center py-4">
         <Input
           placeholder="Filter emails..."
-          value={(table.getColumn("email")?.getFilterValue()) ?? ""}
+          value={table.getColumn("email")?.getFilterValue() ?? ""}
           onChange={(event) =>
             table.getColumn("email")?.setFilterValue(event.target.value)
           }
@@ -220,7 +218,7 @@ export function CustomersTable() {
                   >
                     {column.id}
                   </DropdownMenuCheckboxItem>
-                )
+                );
               })}
           </DropdownMenuContent>
         </DropdownMenu>
@@ -240,7 +238,7 @@ export function CustomersTable() {
                             header.getContext()
                           )}
                     </TableHead>
-                  )
+                  );
                 })}
               </TableRow>
             ))}
@@ -300,5 +298,5 @@ export function CustomersTable() {
         </div>
       </div>
     </div>
-  )
+  );
 }
