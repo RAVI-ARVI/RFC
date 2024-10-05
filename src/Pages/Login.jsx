@@ -25,6 +25,8 @@ const Login = () => {
       onSuccess: (res) => {
         setAuthToken( res.accessToken);
         Cookies.set("userlogin", res.accessToken);
+        Cookies.set("userName", res.user.username);
+
         Cookies.set("accessToken", res.accessToken);
         Cookies.set("refreshToken", res.refreshToken);
             navigateTo('/home')

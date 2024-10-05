@@ -27,6 +27,8 @@ const CustomerViewPage = () => {
   const {data,isLoading } = useQuery('getcustomerdetails', () => {
    return api.get(`/customer/${id}`).then((res)=>res.data)
   })
+
+
   const user = data?.customer || {}
   const loansData = data?.customer?.loans || []
   const transactionData = data?.customer?.transactions || []
@@ -36,6 +38,7 @@ const CustomerViewPage = () => {
   }, {
     onSuccess: () => {
       queryclient.invalidateQueries('getcustomerdetails')
+      queryclient.invalidateQueries('get-cashflow')
 
       toast.success("Customer Transaction Deleted Successfully!")
       
@@ -47,6 +50,7 @@ const CustomerViewPage = () => {
   }, {
     onSuccess: () => {
       queryclient.invalidateQueries('getcustomerdetails')
+      queryclient.invalidateQueries('get-cashflow')
 
       toast.success("Customer Transaction Deleted Successfully!")
       
@@ -63,29 +67,10 @@ const CustomerViewPage = () => {
     navigate('/home')
     
   }
-  const handleDelete = () => {
-    
-  }
+  
 
   return (
-    // <div className="min-h-[90vh] sm:gap-4 sm:py-4 sm:pl-10">
-    //   <Breadcrumb >
-    //     <BreadcrumbList>
-    //     <BreadcrumbItem>
-    //         <Link to={"/home"}>
-            
-    //         <BreadcrumbLink><h3>Home</h3></BreadcrumbLink></Link>
-    //       </BreadcrumbItem>
-    //       <BreadcrumbItem>
-          
-            
-    //         <BreadcrumbLink>{user?.name}</BreadcrumbLink>
-    //     </BreadcrumbItem>
-    //       </BreadcrumbList>
-      
-    //   </Breadcrumb>
-    
-    // </div>
+   
     <div className="flex gap-6 min-h-screen w-full flex-col bg-muted/40">
     <Tabs defaultValue="week">
       <TabsContent value="week">

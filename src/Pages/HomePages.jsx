@@ -40,6 +40,7 @@ const HomePages = () => {
     const handleLogout = () => {
       // dispatch(logout());
       toast.success("Logged Out!");
+
     };
   return (
     <div className="flex min-h-screen w-full flex-col bg-muted/40">
@@ -224,7 +225,7 @@ const HomePages = () => {
               <Home className="h-5 w-5" />
               Dashboard
             </Link>
-            <Link
+            {/* <Link
               className={`flex items-center gap-4 px-2.5 ${
                 active === "Add Project"
                   ? "text-foreground"
@@ -267,8 +268,8 @@ const HomePages = () => {
             >
               <User className="h-5 w-5" />
               Account
-            </Link>
-            <Link
+            </Link> */}
+            {/* <Link
               className={`flex items-center gap-4 px-2.5 ${
                 active === "Timeline"
                   ? "text-foreground"
@@ -278,8 +279,8 @@ const HomePages = () => {
             >
               <History className="h-5 w-5" />
               Timeline
-            </Link>
-            <Link
+            </Link> */}
+            {/* <Link
               className={`flex items-center gap-4 px-2.5 ${
                 active === "Messages"
                   ? "text-foreground"
@@ -289,7 +290,7 @@ const HomePages = () => {
             >
               <MessageSquareMore className="h-5 w-5" />
               Messages
-            </Link>
+            </Link> */}
             <Link
               className={
                 "flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
@@ -311,7 +312,7 @@ const HomePages = () => {
         /> */}
         <h1 className="text-4xl max-[900px]:text-2xl">
             Welcome back,
-            {/* {user.fullName} */}
+            {Cookies.get("userName")?.toUpperCase()}
         </h1>
       </div>
     </header>
