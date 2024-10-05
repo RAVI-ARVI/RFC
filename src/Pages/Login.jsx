@@ -7,55 +7,53 @@ import { useEffect, useState } from "react";
 import { api, setAuthToken } from "@/utils/axios";
 import { LoaderIcon } from "lucide-react";
 import { useMutation } from "react-query";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import SpecialLoadingButton from "./sub-components/SpecialLoadingButton";
 
-
-
 const Login = () => {
-    const [email, setEmail] = useState("");
-    const navigateTo = useNavigate();
-    
-    const [password, setPassword] = useState("");
-    const { mutate,isLoading} = useMutation(() => {
-        return api.post('/users/login',{
-            email,password
-        }).then((res)=>res.data)
-    }, {
+  const [email, setEmail] = useState("");
+  const navigateTo = useNavigate();
+
+  const [password, setPassword] = useState("");
+  const { mutate, isLoading } = useMutation(
+    () => {
+      return api
+        .post("/users/login", {
+          email,
+          password,
+        })
+        .then((res) => res.data);
+    },
+    {
       onSuccess: (res) => {
-        setAuthToken( res.accessToken);
+        setAuthToken(res.accessToken);
         Cookies.set("userlogin", res.accessToken);
         Cookies.set("userName", res.user.username);
 
         Cookies.set("accessToken", res.accessToken);
         Cookies.set("refreshToken", res.refreshToken);
-            navigateTo('/home')
-        }
-    })
-
-    const loading = false
-    
-    const handleLogin = (email, password) => {
-        console.log(email, password)
-        mutate()
+        navigateTo("/home");
+      },
     }
+  );
 
-   
-    const isAuthenticated=false
+  const loading = false;
 
+  const handleLogin = (email, password) => {
+    console.log(email, password);
+    mutate();
+  };
 
+  const isAuthenticated = false;
 
-    useEffect(() => {
-      
+  useEffect(() => {
     // if (error) {
     //   toast.error(error);
-   
     // }
     // if (Cookies.get("userlogin")) {
     //   navigateTo("/");
     // }
-    }, []);
- 
+  }, []);
 
   return (
     <div className="w-full lg:grid lg:min-h-[100vh] lg:grid-cols-2 xl:min-h-[100vh]">
@@ -82,12 +80,12 @@ const Login = () => {
             <div className="grid gap-2">
               <div className="flex items-center">
                 <Label>Password</Label>
-                <Link
+                {/* <Link
                   to="/password/forgot"
                   className="ml-auto inline-block text-sm underline"
                 >
                   Forgot your password?
-                </Link>
+                </Link> */}
               </div>
               <Input
                 type="password"
@@ -98,21 +96,20 @@ const Login = () => {
             {loading ? (
               <SpecialLoadingButton content={"Loggin In"} />
             ) : (
-                <>{isLoading?    <Button
-                
-                    className="w-full cursor-not-allowed opacity-50 "
-                    
-                >
-                 Loading... <LoaderIcon/>
-                </Button> :
+              <>
+                {isLoading ? (
+                  <Button className="w-full cursor-not-allowed opacity-50 ">
+                    Loading... <LoaderIcon />
+                  </Button>
+                ) : (
                   <Button
-                onClick={() => handleLogin(email, password)}
-                  className="w-full "
-                  
-              >
-               Login
-              </Button>}</>
-          
+                    onClick={() => handleLogin(email, password)}
+                    className="w-full "
+                  >
+                    Login
+                  </Button>
+                )}
+              </>
             )}
           </div>
         </div>
