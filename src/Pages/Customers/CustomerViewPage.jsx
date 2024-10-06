@@ -66,6 +66,9 @@ const CustomerViewPage = () => {
   const handleReturnToDashboard = () => {
     navigate("/home");
   };
+  if (isLoading) {
+    return <h1>Loading..........</h1>;
+  }
 
   return (
     <div className="flex gap-6 min-h-screen w-full flex-col bg-muted/40">
@@ -109,7 +112,6 @@ const CustomerViewPage = () => {
           </Card>
         </TabsContent>
       </Tabs>
-
       <Card>
         <CardHeader className="px-7 flex items-center justify-between flex-row">
           <CardTitle>Loan </CardTitle>
