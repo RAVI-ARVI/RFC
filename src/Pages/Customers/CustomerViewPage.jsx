@@ -121,6 +121,7 @@ const CustomerViewPage = () => {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead>Loan Name </TableHead>
                 <TableHead>Loan Type </TableHead>
                 <TableHead className="md:table-cell">Start Date</TableHead>
                 <TableHead className="md:table-cell">End Date</TableHead>
@@ -139,6 +140,9 @@ const CustomerViewPage = () => {
                 loansData.map((element) => {
                   return (
                     <TableRow className="bg-accent" key={element?._id}>
+                      <TableCell className="font-medium">
+                        {element?.loanName}
+                      </TableCell>
                       <TableCell className="font-medium">
                         {element?.loanType}
                       </TableCell>

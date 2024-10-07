@@ -8,6 +8,7 @@ import { api, setAuthToken } from "@/utils/axios";
 import { LoaderIcon } from "lucide-react";
 import { useMutation } from "react-query";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 import SpecialLoadingButton from "./sub-components/SpecialLoadingButton";
 
 const Login = () => {
@@ -33,6 +34,9 @@ const Login = () => {
         Cookies.set("accessToken", res.accessToken);
         Cookies.set("refreshToken", res.refreshToken);
         navigateTo("/home");
+      },
+      onError: (err) => {
+        toast.error(err?.response?.data?.message);
       },
     }
   );

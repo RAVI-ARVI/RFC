@@ -53,6 +53,9 @@ const AddLoanForm = () => {
         toast.success("Loan Added  Successfully!");
         setCustomer(defaultState);
       },
+      onError: (err) => {
+        toast.error(err?.response?.data?.message);
+      },
     }
   );
 
@@ -137,19 +140,7 @@ const AddLoanForm = () => {
               onChange={handleInputChange}
             />
           </div>
-          {/* <div className="grid grid-cols-4 items-center gap-4">
-          <Label htmlFor="startDate" className="text-right">
-          Start Date
-          </Label>
-            <Input
-              name="startDate"
-              id="startDate"
-               placeholder="DD-MM-YYYY"
-              onChange={handleInputChange}
-            defaultValue={customer.endDate}
-            className="col-span-3"
-          />
-          </div> */}
+
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="startDate" className="text-right">
               Start Date
@@ -158,6 +149,7 @@ const AddLoanForm = () => {
             <Input
               name="startDate"
               id="startDate"
+              type="date"
               placeholder="YYYY-MM-DD"
               onChange={handleInputChange}
               defaultValue={customer.endDate}
@@ -170,6 +162,7 @@ const AddLoanForm = () => {
             </Label>
             <Input
               name="endDate"
+              type="date"
               id="endDate"
               placeholder="YYYY-MM-DD"
               onChange={handleInputChange}

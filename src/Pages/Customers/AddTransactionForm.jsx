@@ -42,6 +42,9 @@ const AddTransactionForm = ({ loanData }) => {
 
         toast.success("Transaction  Created Successfully!");
       },
+      onError: (err) => {
+        toast.error(err?.response?.data?.message);
+      },
     }
   );
   const [customer, setCustomer] = useState({
@@ -86,7 +89,7 @@ const AddTransactionForm = ({ loanData }) => {
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="loanId" className="text-right">
-              loanId
+              loan Name
             </Label>
 
             <Select
@@ -166,6 +169,7 @@ const AddTransactionForm = ({ loanData }) => {
             <Input
               name="paymentDate"
               id="paymentDate"
+              type="date"
               placeholder="YYYY-MM-DD"
               onChange={handleInputChange}
               defaultValue={customer.paymentDate}
