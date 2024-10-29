@@ -5,7 +5,7 @@ import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
 
 import { api, setAuthToken } from "@/utils/axios";
-import { LoaderIcon } from "lucide-react";
+import { Loader } from "lucide-react";
 import { useMutation } from "react-query";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -103,7 +103,7 @@ const Login = () => {
               <>
                 {isLoading ? (
                   <Button className="w-full cursor-not-allowed opacity-50 ">
-                    Loading... <LoaderIcon />
+                    <Loader className="animate-spin w-10 h-10 text-tubeLight-effect" />
                   </Button>
                 ) : (
                   <Button

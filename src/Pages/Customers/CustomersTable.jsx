@@ -29,7 +29,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { api } from "@/utils/axios";
-import { ViewIcon } from "lucide-react";
+import { Loader, ViewIcon } from "lucide-react";
 import { useQuery } from "react-query";
 import { useNavigate } from "react-router-dom";
 
@@ -182,7 +182,11 @@ export function CustomersTable() {
     },
   });
   if (isLoading) {
-    return <h1>loading...</h1>;
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Loader className="animate-spin w-10 h-10 text-tubeLight-effect" />
+      </div>
+    );
   }
 
   return (

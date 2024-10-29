@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { api } from "@/utils/axios";
-import { LoaderIcon } from "lucide-react";
+import { Loader } from "lucide-react";
 import { useState } from "react";
 import { useMutation, useQueryClient } from "react-query";
 import { useParams } from "react-router-dom";
@@ -193,7 +193,8 @@ const AddTransactionForm = ({ loanData }) => {
         <DialogFooter>
           {isLoading ? (
             <Button className="w-full cursor-not-allowed opacity-50 ">
-              Loading... <LoaderIcon />
+              Loading...{" "}
+              <Loader className="animate-spin w-10 h-10 text-tubeLight-effect" />
             </Button>
           ) : (
             <Button onClick={handleSubmit} className="w-full">

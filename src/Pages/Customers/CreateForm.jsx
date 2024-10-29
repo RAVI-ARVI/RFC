@@ -10,7 +10,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { api } from "@/utils/axios";
-import { LoaderIcon } from "lucide-react";
+import { Loader, LoaderIcon } from "lucide-react";
 import { useState } from "react";
 import { useMutation, useQueryClient } from "react-query";
 import { toast } from "react-toastify";
@@ -114,7 +114,8 @@ const CreateForm = () => {
         <DialogFooter>
           {isLoading ? (
             <Button className="w-full cursor-not-allowed opacity-50 ">
-              Loading... <LoaderIcon />
+              Loading...{" "}
+              <Loader className="animate-spin w-10 h-10 text-tubeLight-effect" />
             </Button>
           ) : (
             <Button onClick={handleSubmit} className="w-full">

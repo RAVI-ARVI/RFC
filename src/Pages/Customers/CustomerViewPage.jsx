@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { api } from "@/utils/axios";
-import { Trash } from "lucide-react";
+import { Loader, Trash } from "lucide-react";
 import moment from "moment";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useNavigate, useParams } from "react-router-dom";
@@ -67,7 +67,11 @@ const CustomerViewPage = () => {
     navigate("/home");
   };
   if (isLoading) {
-    return <h1>Loading..........</h1>;
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Loader className="animate-spin w-10 h-10 text-tubeLight-effect" />
+      </div>
+    );
   }
 
   return (
