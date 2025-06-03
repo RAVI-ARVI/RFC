@@ -11,8 +11,15 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { api } from "@/utils/axios";
+import {
+  flexRender,
+  getCoreRowModel,
+  getPaginationRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
+import dayjs from "dayjs"; // Replaced moment with dayjs
 import { Loader, Trash } from "lucide-react";
-import moment from "moment";
+import React from "react";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -31,6 +38,107 @@ const CustomerViewPage = () => {
   const user = data?.customer || {};
   const loansData = data?.customer?.loans || [];
   const transactionData = data?.customer?.transactions || [];
+
+  // Loans Table Setup
+  const loanColumns = React.useMemo(
+    () => [
+      { accessorKey: "loanName", header: "Loan Name" },
+      { accessorKey: "loanType", header: "Loan Type" },
+      {
+        accessorKey: "startDate",
+        header: "Start Date",
+        cell: ({ getValue }) => {
+          const dateValue = getValue();
+          return dateValue ? dayjs(dateValue).format("DD-MM-YYYY") : "N/A";
+        },
+      },
+      {
+        accessorKey: "endDate",
+        header: "End Date",
+        cell: ({ getValue }) => {
+          const dateValue = getValue();
+          return dateValue ? dayjs(dateValue).format("DD-MM-YYYY") : "N/A";
+        },
+      },
+      { accessorKey: "principalAmount", header: "Principal Amount" },
+      { accessorKey: "repaymentAmount", header: "Repayment Paid", cell: ({getValue}) => getValue() || "*" },
+      { header: "Amount Paid / InterestPaid", cell: ({row}) => row.original.amountPaid || row.original.totalInterestPaid || "*" },
+      { accessorKey: "interestRate", header: "Interest Rate", cell: ({getValue}) => getValue() || "*" },
+      { accessorKey: "interestDuePeriod", header: "Interest Due", cell: ({getValue}) => getValue() || "*" },
+      { accessorKey: "status", header: "Status" },
+      {
+        id: "actions",
+        header: "Actions",
+        cell: ({ row }) => (
+          <Trash
+            onClick={() => deleteLoan(row.original._id)}
+            className="cursor-pointer"
+          />
+        ),
+      },
+    ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [id] // Added id to dependency array for deleteLoan
+  );
+
+  const [loanPagination, setLoanPagination] = React.useState({
+    pageIndex: 0,
+    pageSize: 5,
+  });
+
+  const loanTable = useReactTable({
+    data: loansData,
+    columns: loanColumns,
+    state: { pagination: loanPagination },
+    onPaginationChange: setLoanPagination,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    manualPagination: false, // Client-side pagination
+  });
+
+  // Transactions Table Setup
+  const transactionColumns = React.useMemo(
+    () => [
+      { accessorKey: "transactionType", header: "Transaction Type" },
+      { accessorKey: "amount", header: "Paid Amount" },
+      {
+        accessorKey: "paymentDate",
+        header: "Payment Date",
+        cell: ({ getValue }) => {
+          const dateValue = getValue();
+          return dateValue ? dayjs(dateValue).format("DD-MM-YYYY") : "N/A";
+        },
+      },
+      { accessorKey: "remainingAmount", header: "Remaining Amount" },
+      {
+        id: "actions",
+        header: "Actions",
+        cell: ({ row }) => (
+          <Trash
+            onClick={() => mutate(row.original._id)}
+            className="cursor-pointer"
+          />
+        ),
+      },
+    ],
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    [] // No dependency needed for mutate
+  );
+
+  const [transactionPagination, setTransactionPagination] = React.useState({
+    pageIndex: 0,
+    pageSize: 5,
+  });
+
+  const transactionTable = useReactTable({
+    data: transactionData,
+    columns: transactionColumns,
+    state: { pagination: transactionPagination },
+    onPaginationChange: setTransactionPagination,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    manualPagination: false, // Client-side pagination
+  });
 
   const { mutate } = useMutation(
     (deleteID) => {
@@ -124,66 +232,73 @@ const CustomerViewPage = () => {
         <CardContent>
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>Loan Name </TableHead>
-                <TableHead>Loan Type </TableHead>
-                <TableHead className="md:table-cell">Start Date</TableHead>
-                <TableHead className="md:table-cell">End Date</TableHead>
-                {/* <TableHead>Amount Paid </TableHead> */}
-                <TableHead>Principal Amount </TableHead>
-                <TableHead>Repayment Paid </TableHead>
-                <TableHead>Amount Paid / InterestPaid</TableHead>
-                <TableHead>Interest Rate</TableHead>
-                <TableHead>Interest Due </TableHead>
-                <TableHead>Status </TableHead>
-                <TableHead>Actions </TableHead>
-              </TableRow>
+              {loanTable.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <TableHead key={header.id}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </TableHead>
+                  ))}
+                </TableRow>
+              ))}
             </TableHeader>
             <TableBody>
-              {loansData && loansData.length > 0 ? (
-                loansData.map((element) => {
-                  return (
-                    <TableRow className="bg-accent" key={element?._id}>
-                      <TableCell className="font-medium">
-                        {element?.loanName}
+              {loanTable.getRowModel().rows?.length ? (
+                loanTable.getRowModel().rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && "selected"}
+                    className="bg-accent"
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
                       </TableCell>
-                      <TableCell className="font-medium">
-                        {element?.loanType}
-                      </TableCell>
-                      <TableCell className="md:table-cell">
-                        {/* {element.timeline.from} */}
-                        {moment(element?.startDate)?.format("DD-MM-YYYY")}
-                      </TableCell>
-                      <TableCell className="md:table-cell ">
-                        {moment(element?.endDate)?.format("DD-MM-YYYY")}
-                      </TableCell>
-                      <TableCell>{element.principalAmount}</TableCell>
-                      <TableCell>{element.repaymentAmount || "*"}</TableCell>
-
-                      <TableCell>
-                        {element.amountPaid || element.totalInterestPaid}
-                      </TableCell>
-                      <TableCell>{element.interestRate || "*"}</TableCell>
-                      <TableCell>{element.interestDuePeriod || "*"}</TableCell>
-                      <TableCell>{element.status}</TableCell>
-                      <TableCell>
-                        <Trash
-                          onClick={() => deleteLoan(element._id)}
-                          className="cursor-pointer"
-                        />
-                      </TableCell>
-                    </TableRow>
-                  );
-                })
+                    ))}
+                  </TableRow>
+                ))
               ) : (
                 <TableRow>
-                  <TableCell className="text-3xl overflow-y-hidden">
-                    You Don't have any Loan.
+                  <TableCell
+                    colSpan={loanColumns.length}
+                    className="h-24 text-center"
+                  >
+                    No loans found.
                   </TableCell>
                 </TableRow>
               )}
             </TableBody>
           </Table>
+          <div className="flex items-center justify-end space-x-2 py-4">
+            <div className="flex-1 text-sm text-muted-foreground">
+              Page {loanTable.getState().pagination.pageIndex + 1} of{" "}
+              {loanTable.getPageCount()}
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => loanTable.previousPage()}
+              disabled={!loanTable.getCanPreviousPage()}
+            >
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => loanTable.nextPage()}
+              disabled={!loanTable.getCanNextPage()}
+            >
+              Next
+            </Button>
+          </div>
         </CardContent>
       </Card>
 
@@ -196,56 +311,73 @@ const CustomerViewPage = () => {
         <CardContent>
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>Transaction Type</TableHead>
-                <TableHead className="md:table-cell">Paid Amount</TableHead>
-                {/* <TableHead>Collected By</TableHead> */}
-                <TableHead>Payment Date</TableHead>
-                <TableHead>Remaining Amount</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
+              {transactionTable.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <TableHead key={header.id}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </TableHead>
+                  ))}
+                </TableRow>
+              ))}
             </TableHeader>
             <TableBody>
-              {transactionData && transactionData.length > 0 ? (
-                transactionData?.map((element) => {
-                  return (
-                    <TableRow className="bg-accent" key={element?._id}>
-                      <TableCell>{element?.transactionType}</TableCell>
-                      <TableCell>{element?.amount}</TableCell>
-                      {/* <TableCell >
-                                  {element?.agent}
-                                </TableCell> */}
-                      <TableCell>
-                        {moment(element?.paymentDate)?.format("DD-MM-YYYY")}
+              {transactionTable.getRowModel().rows?.length ? (
+                transactionTable.getRowModel().rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && "selected"}
+                    className="bg-accent"
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
                       </TableCell>
-                      <TableCell>{element?.remainingAmount}</TableCell>
-                      <TableCell>
-                        <Trash
-                          onClick={() => mutate(element._id)}
-                          className="cursor-pointer"
-                        />
-                      </TableCell>
-                      {/* <TableCell className="font-medium">
-                                  {element?.title}
-                                </TableCell>
-                                <TableCell className="md:table-cell">
-                                  {element?.timeline?.from}
-                                </TableCell>
-                                <TableCell className="md:table-cell  text-right">
-                                  {element?.timeline?.to}
-                                </TableCell> */}
-                    </TableRow>
-                  );
-                })
+                    ))}
+                  </TableRow>
+                ))
               ) : (
                 <TableRow>
-                  <TableCell className="text-3xl overflow-y-hidden">
-                    You Don't have any Transactions.
+                  <TableCell
+                    colSpan={transactionColumns.length}
+                    className="h-24 text-center"
+                  >
+                    No transactions found.
                   </TableCell>
                 </TableRow>
               )}
             </TableBody>
           </Table>
+          <div className="flex items-center justify-end space-x-2 py-4">
+            <div className="flex-1 text-sm text-muted-foreground">
+              Page {transactionTable.getState().pagination.pageIndex + 1} of{" "}
+              {transactionTable.getPageCount()}
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => transactionTable.previousPage()}
+              disabled={!transactionTable.getCanPreviousPage()}
+            >
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => transactionTable.nextPage()}
+              disabled={!transactionTable.getCanNextPage()}
+            >
+              Next
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>

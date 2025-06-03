@@ -8,7 +8,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { api } from "@/utils/axios";
-import moment from "moment";
+import dayjs from "dayjs"; // Replaced moment with dayjs
 import { useQuery } from "react-query";
 import { useNavigate } from "react-router-dom";
 
@@ -65,7 +65,9 @@ const TransactionsPage = () => {
                     return (
                       <TableRow className="bg-accent" key={element?._id}>
                         <TableCell>
-                          {moment(element?.paymentDate)?.format("DD-MM-YYYY")}
+                          {element?.paymentDate
+                            ? dayjs(element.paymentDate).format("DD-MM-YYYY")
+                            : "N/A"}
                         </TableCell>
                         <TableCell>{element?.customer?.name}</TableCell>
                         <TableCell>{element?.loan?.loanName}</TableCell>

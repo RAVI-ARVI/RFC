@@ -4,7 +4,7 @@ import { CaretSortIcon, ChevronDownIcon } from "@radix-ui/react-icons";
 import {
   flexRender,
   getCoreRowModel,
-  getFilteredRowModel,
+  // getFilteredRowModel, // Removed for server-side filtering
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
@@ -35,16 +35,43 @@ import { useNavigate } from "react-router-dom";
 
 export function CustomersTable() {
   const navigate = useNavigate();
+  const [pagination, setPagination] = React.useState({
+    pageIndex: 0,
+    pageSize: 10,
+  });
+  const [sorting, setSorting] = React.useState([]);
+  const [globalFilter, setGlobalFilter] = React.useState("");
 
-  const { data, isLoading } = useQuery(
-    "get-customers",
+  const defaultData = React.useMemo(() => [], []);
+
+  const { data: queryResult, isLoading } = useQuery(
+    [
+      "get-customers",
+      pagination.pageIndex,
+      pagination.pageSize,
+      sorting,
+      globalFilter,
+    ],
     () => {
-      return api.get("/customer/get-all").then((res) => res.data.data);
+      const params = new URLSearchParams();
+      params.append("page", pagination.pageIndex + 1);
+      params.append("limit", pagination.pageSize);
+      if (sorting.length > 0) {
+        params.append("sortBy", sorting[0].id);
+        params.append("sortOrder", sorting[0].desc ? "desc" : "asc");
+      }
+      if (globalFilter) {
+        params.append("search", globalFilter);
+      }
+      return api
+        .get(`/customer/get-all?${params.toString()}`)
+        .then((res) => res.data);
     },
     {
+      keepPreviousData: true,
       onError: (err) => {
         console.log(err, "this is errors");
-        if ((err.status = 401)) {
+        if (err?.response?.status === 401) {
           navigate("/login");
         }
       },
@@ -157,30 +184,35 @@ export function CustomersTable() {
       },
     },
   ];
-  const [sorting, setSorting] = React.useState([]);
-  const [columnFilters, setColumnFilters] = React.useState([]);
-
+  // const [columnFilters, setColumnFilters] = React.useState([]); // Removed for server-side filtering
   const [columnVisibility, setColumnVisibility] = React.useState({});
   const [rowSelection, setRowSelection] = React.useState({});
 
   const table = useReactTable({
-    data,
+    data: queryResult?.data?.data ?? defaultData,
     columns,
-    onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    onColumnVisibilityChange: setColumnVisibility,
-    onRowSelectionChange: setRowSelection,
+    pageCount: queryResult?.data?.pageCount ?? -1,
     state: {
+      pagination,
       sorting,
-      columnFilters,
+      globalFilter,
       columnVisibility,
       rowSelection,
     },
+    onPaginationChange: setPagination,
+    onSortingChange: setSorting,
+    onGlobalFilterChange: setGlobalFilter,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    // getFilteredRowModel: getFilteredRowModel(), // Removed for server-side filtering
+    onColumnVisibilityChange: setColumnVisibility,
+    onRowSelectionChange: setRowSelection,
+    manualPagination: true,
+    manualSorting: true,
+    manualFiltering: true,
   });
+
   if (isLoading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -194,10 +226,8 @@ export function CustomersTable() {
       <div className="flex items-center py-4">
         <Input
           placeholder="Filter Name..."
-          value={table.getColumn("name")?.getFilterValue() ?? ""}
-          onChange={(event) =>
-            table.getColumn("name")?.setFilterValue(event.target.value)
-          }
+          value={globalFilter ?? ""}
+          onChange={(event) => setGlobalFilter(event.target.value)}
           className="max-w-sm"
         />
         <DropdownMenu>
@@ -279,8 +309,12 @@ export function CustomersTable() {
       </div>
       <div className="flex items-center justify-end space-x-2 py-4">
         <div className="flex-1 text-sm text-muted-foreground">
-          {table.getFilteredSelectedRowModel()?.rows?.length} of{" "}
-          {table.getFilteredRowModel()?.rows?.length} row(s) selected.
+          {table.getFilteredSelectedRowModel().rows.length} of{" "}
+          {queryResult?.data?.totalItems ?? 0} row(s) selected.
+        </div>
+        <div className="text-sm text-muted-foreground">
+          Page {table.getState().pagination.pageIndex + 1} of{" "}
+          {table.getPageCount()}
         </div>
         <div className="space-x-2">
           <Button
